@@ -27,6 +27,7 @@ Other contributors:
   \item Greg Sutcliffe \email{github@emeraldverie.org} [contributor]
   \item Rick Pack \email{rickeyhp@gmail.com} [contributor]
   \item Ben Ubah \email{ubah.ben22@gmail.com} [contributor]
+  \item Amanda Dobbyn \email{amanda.e.dobbyn@gmail.com} [contributor]
 }
 
 }
