@@ -26,28 +26,9 @@ get_topics <- function(lat = NULL, lon = NULL, fields = NULL, api_key = NULL) {
 }
 
 wrangle_topic <- function(x) {
-  best_topics_idx <- which(names(x) == "best_topics")
-  category_ids_idx <- which(names(x) == "group")
+  photo_idx <- which(names(x) == "photo")
 
-  extra <-
-    x[-c(best_topics_idx, category_ids_idx)] %>%
-    tibble::as_tibble()
-
-  topic <-
-    x$best_topics %>%
+  x[-photo_idx] %>%
     tibble::as_tibble() %>%
-    dplyr::rename_all(
-      ~ paste0("topic_", .)
-    )
-
-  category <-
-    x$category_ids %>%
-    tibble::as_tibble() %>%
-    dplyr::rename_all(
-      ~ paste0("category_", .)
-    )
-
-  extra %>%
-    dplyr::bind_cols(topic) %>%
-    dplyr::bind_cols(category)
+    tidyr::unnest(category_ids)
 }

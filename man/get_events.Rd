@@ -60,19 +60,25 @@ Get the events from a meetup group
 \examples{
 \dontrun{
 urlname <- "rladies-nashville"
-past_events <- get_events(urlname = urlname,
-                      event_status = "past")
-upcoming_events <- get_events(urlname = urlname,
-                      event_status = "upcoming")
-past_meetings <- get_events(urlname = urlname,
-                 event_status = "past",
-                 fields = "event_hosts", api_key = api_key)
+past_events <- get_events(
+  urlname = urlname,
+  event_status = "past"
+)
+upcoming_events <- get_events(
+  urlname = urlname,
+  event_status = "upcoming"
+)
+past_meetings <- get_events(
+  urlname = urlname,
+  event_status = "past",
+  fields = "event_hosts", api_key = api_key
+)
 # get events hosts (co-organizers) of single past meeting
 single_event <- past_meetings$resource[[1]]$event_hosts
 
 # get all event hosts names (2) and host_counts (6) for that single event
 # host_counts represents how events the person has co-organized or hosted.
-do.call("rbind", lapply(single_event, '[', c(2,6)))
+do.call("rbind", lapply(single_event, "[", c(2, 6)))
 }
 }
 \references{

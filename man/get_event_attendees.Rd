@@ -33,9 +33,11 @@ Get the attendees for a specified event
 \examples{
 \dontrun{
 urlname <- "rladies-nashville"
-past_events <- get_events(urlname = urlname,
-                      event_status = "past")
-event_id <- past_events$id[1]  #first event for this group
+past_events <- get_events(
+  urlname = urlname,
+  event_status = "past"
+)
+event_id <- past_events$id[1] # first event for this group
 attendees <- get_event_attendees(urlname, event_id)
 }
 }

@@ -36,8 +36,10 @@ Get the discussion boards from a meetup group
 \examples{
 \dontrun{
 urlname <- "rladies-nashville"
-meetup_boards <- get_boards(urlname = urlname,
-                      api_key = api_key)
+meetup_boards <- get_boards(
+  urlname = urlname,
+  api_key = api_key
+)
 }
 }
 \references{

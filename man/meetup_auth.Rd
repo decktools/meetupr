@@ -93,7 +93,7 @@ ttt <- meetup_auth()
 saveRDS(ttt, "ttt.rds")
 
 ## load a pre-existing token
-meetup_auth(token = ttt)       # from an object
+meetup_auth(token = ttt) # from an object
 meetup_auth(token = "ttt.rds") # from .rds file
 }
 }
