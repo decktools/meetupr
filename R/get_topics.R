@@ -10,9 +10,9 @@
 #'
 #' @examples
 #' \dontrun{
-#' get_topics()
+#' get_topic_categories()
 #' }
-get_topics <- function(lat = NULL, lon = NULL, fields = NULL, api_key = NULL) {
+get_topic_categories <- function(lat = NULL, lon = NULL, fields = NULL, api_key = NULL) {
   api_method <- "find/topic_categories"
 
   if (length(c(lat, lon)) == 1) {
