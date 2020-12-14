@@ -81,7 +81,7 @@
 #' saveRDS(ttt, "ttt.rds")
 #'
 #' ## load a pre-existing token
-#' meetup_auth(token = ttt)       # from an object
+#' meetup_auth(token = ttt) # from an object
 #' meetup_auth(token = "ttt.rds") # from .rds file
 #' }
 meetup_auth <- function(token = NULL,
@@ -90,35 +90,32 @@ meetup_auth <- function(token = NULL,
                         secret = getOption("meetupr.consumer_secret"),
                         cache = getOption("meetupr.httr_oauth_cache"),
                         verbose = TRUE) {
-
   if (new_user) {
     meetup_deauth(clear_cache = TRUE, verbose = verbose)
   }
 
   if (is.null(token)) {
+    message(paste0(
+      "Meetup is moving to OAuth *only* as of 2019-08-15. Set\n",
+      "`meetupr.use_oauth = FALSE` in your .Rprofile, to use\nthe ",
+      "legacy `api_key` authorization."
+    ))
 
-    message(paste0('Meetup is moving to OAuth *only* as of 2019-08-15. Set\n',
-                  '`meetupr.use_oauth = FALSE` in your .Rprofile, to use\nthe ',
-                  'legacy `api_key` authorization.'))
-
-    meetup_app       <- httr::oauth_app("meetup", key = key, secret = secret)
+    meetup_app <- httr::oauth_app("meetup", key = key, secret = secret)
     meetup_endpoints <- httr::oauth_endpoint(
-      authorize = 'https://secure.meetup.com/oauth2/authorize',
-      access    = 'https://secure.meetup.com/oauth2/access'
+      authorize = "https://secure.meetup.com/oauth2/authorize",
+      access = "https://secure.meetup.com/oauth2/access"
     )
     meetup_token <- httr::oauth2.0_token(meetup_endpoints, meetup_app,
-                                         cache = cache)
+      cache = cache
+    )
 
     stopifnot(is_legit_token(meetup_token, verbose = TRUE))
     .state$token <- meetup_token
-
   } else if (inherits(token, "Token2.0")) {
-
     stopifnot(is_legit_token(token, verbose = TRUE))
     .state$token <- token
-
   } else if (inherits(token, "character")) {
-
     meetup_token <- try(suppressWarnings(readRDS(token)), silent = TRUE)
     if (inherits(meetup_token, "try-error")) {
       spf("Cannot read token from alleged .rds file:\n%s", token)
@@ -126,14 +123,14 @@ meetup_auth <- function(token = NULL,
       spf("File does not contain a proper token:\n%s", token)
     }
     .state$token <- meetup_token
-
   } else {
-    spf(paste0("Input provided via 'token' is neither a token,\n",
-               "nor a path to an .rds file containing a token."))
+    spf(paste0(
+      "Input provided via 'token' is neither a token,\n",
+      "nor a path to an .rds file containing a token."
+    ))
   }
 
   invisible(.state$token)
-
 }
 
 #' Produce Meetup token
@@ -169,26 +166,28 @@ meetup_token <- function(verbose = FALSE) {
 #'
 #' @keywords internal
 token_available <- function(verbose = TRUE) {
-
   if (is.null(.state$token)) {
     if (verbose) {
       if (file.exists(".httr-oauth")) {
-        message("A .httr-oauth file exists in current working ",
-                "directory.\nWhen/if needed, the credentials cached in ",
-                ".httr-oauth will be used for this session.\nOr run ",
-                "meetup_auth() for explicit authentication and authorization.")
+        message(
+          "A .httr-oauth file exists in current working ",
+          "directory.\nWhen/if needed, the credentials cached in ",
+          ".httr-oauth will be used for this session.\nOr run ",
+          "meetup_auth() for explicit authentication and authorization."
+        )
       } else {
-        message("No .httr-oauth file exists in current working directory.\n",
-                "When/if needed, 'meetupr' will initiate authentication ",
-                "and authorization.\nOr run meetup_auth() to trigger this ",
-                "explicitly.")
+        message(
+          "No .httr-oauth file exists in current working directory.\n",
+          "When/if needed, 'meetupr' will initiate authentication ",
+          "and authorization.\nOr run meetup_auth() to trigger this ",
+          "explicitly."
+        )
       }
     }
     return(FALSE)
   }
 
   TRUE
-
 }
 
 #' Suspend authorization
@@ -207,7 +206,6 @@ token_available <- function(verbose = TRUE) {
 #' meetup_deauth()
 #' }
 meetup_deauth <- function(clear_cache = TRUE, verbose = TRUE) {
-
   if (clear_cache && file.exists(".httr-oauth")) {
     if (verbose) {
       message("Disabling .httr-oauth by renaming to .httr-oauth-SUSPENDED")
@@ -225,14 +223,12 @@ meetup_deauth <- function(clear_cache = TRUE, verbose = TRUE) {
   }
 
   invisible(NULL)
-
 }
 
 #' Check that token appears to be legitimate
 #'
 #' @keywords internal
 is_legit_token <- function(x, verbose = FALSE) {
-
   if (!inherits(x, "Token2.0")) {
     if (verbose) message("Not a Token2.0 object.")
     return(FALSE)
@@ -254,7 +250,6 @@ is_legit_token <- function(x, verbose = FALSE) {
   }
 
   TRUE
-
 }
 
 
@@ -262,14 +257,15 @@ is_legit_token <- function(x, verbose = FALSE) {
 #'
 #' @keywords internal
 set_api_key <- function(x = NULL) {
-
   if (is.null(x)) {
     key <- Sys.getenv("MEETUP_KEY")
     if (key == "") {
-      spf(paste0("You have not set a MEETUP_KEY environment variable.\nIf you ",
-                 "do not yet have a meetup.com API key, use OAuth2\ninstead, ",
-                 "as API keys are now deprecated - see here:\n",
-                 "* https://www.meetup.com/meetup_api/auth/"))
+      spf(paste0(
+        "You have not set a MEETUP_KEY environment variable.\nIf you ",
+        "do not yet have a meetup.com API key, use OAuth2\ninstead, ",
+        "as API keys are now deprecated - see here:\n",
+        "* https://www.meetup.com/meetup_api/auth/"
+      ))
     }
     .state$legacy_api_key <- key
   } else {
@@ -277,18 +273,15 @@ set_api_key <- function(x = NULL) {
   }
 
   invisible(NULL)
-
 }
 
 #' Get the legacy API key from the .state environment
 #'
 #' @keywords internal
 get_api_key <- function() {
-
   if (is.null(.state$legacy_api_key)) {
     set_api_key()
   }
 
   .state$legacy_api_key
-
 }

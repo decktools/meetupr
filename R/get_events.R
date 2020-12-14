@@ -37,28 +37,33 @@
 #'
 #' @references
 #' \url{https://www.meetup.com/meetup_api/docs/:urlname/events/#list}
-#'@examples
+#' @examples
 #' \dontrun{
 #' urlname <- "rladies-nashville"
-#' past_events <- get_events(urlname = urlname,
-#'                       event_status = "past")
-#' upcoming_events <- get_events(urlname = urlname,
-#'                       event_status = "upcoming")
-#' past_meetings <- get_events(urlname = urlname,
-#'                  event_status = "past",
-#'                  fields = "event_hosts", api_key = api_key)
+#' past_events <- get_events(
+#'   urlname = urlname,
+#'   event_status = "past"
+#' )
+#' upcoming_events <- get_events(
+#'   urlname = urlname,
+#'   event_status = "upcoming"
+#' )
+#' past_meetings <- get_events(
+#'   urlname = urlname,
+#'   event_status = "past",
+#'   fields = "event_hosts", api_key = api_key
+#' )
 #' # get events hosts (co-organizers) of single past meeting
 #' single_event <- past_meetings$resource[[1]]$event_hosts
 #'
 #' # get all event hosts names (2) and host_counts (6) for that single event
 #' # host_counts represents how events the person has co-organized or hosted.
-#' do.call("rbind", lapply(single_event, '[', c(2,6)))
-
-#'}
+#' do.call("rbind", lapply(single_event, "[", c(2, 6)))
+#' }
 #' @export
 get_events <- function(urlname, event_status = "upcoming", fields = NULL, api_key = NULL) {
   if (!is.null(event_status) &&
-     !event_status %in% c("cancelled", "draft", "past", "proposed", "suggested", "upcoming")) {
+    !event_status %in% c("cancelled", "draft", "past", "proposed", "suggested", "upcoming")) {
     stop(sprintf("Event status %s not allowed", event_status))
   }
   # If event_status contains multiple statuses, we can pass along a comma sep list
@@ -66,13 +71,13 @@ get_events <- function(urlname, event_status = "upcoming", fields = NULL, api_ke
     event_status <- paste(event_status, collapse = ",")
   }
   # If fields is a vector, change it to single string of comma separated values
-  if(length(fields) > 1){
+  if (length(fields) > 1) {
     fields <- paste(fields, collapse = ",")
   }
   api_method <- paste0(urlname, "/events")
   res <- .fetch_results(api_method, api_key, event_status, fields = fields)
   tibble::tibble(
-    id = purrr::map_chr(res, "id"),  #this is returned as chr (not int)
+    id = purrr::map_chr(res, "id"), # this is returned as chr (not int)
     name = purrr::map_chr(res, "name"),
     created = .date_helper(purrr::map_dbl(res, "created", .default = NA)),
     status = purrr::map_chr(res, "status", .default = NA),

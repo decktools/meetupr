@@ -15,17 +15,21 @@
 #' @examples
 #' \dontrun{
 #' urlname <- "rladies-nashville"
-#' past_events <- get_events(urlname = urlname,
-#'                       event_status = "past")
-#' event_id <- past_events$id[1]  #first event for this group
+#' past_events <- get_events(
+#'   urlname = urlname,
+#'   event_status = "past"
+#' )
+#' event_id <- past_events$id[1] # first event for this group
 #' attendees <- get_event_attendees(urlname, event_id)
-#'}
+#' }
 #' @export
 get_event_attendees <- function(urlname, event_id, api_key = NULL) {
-  api_method <- paste0(urlname,
-                    "/events/",
-                    event_id,
-                    "/attendance")
+  api_method <- paste0(
+    urlname,
+    "/events/",
+    event_id,
+    "/attendance"
+  )
   res <- .fetch_results(api_method, api_key)
   tibble::tibble(
     id = purrr::map_int(res, c("member", "id")),

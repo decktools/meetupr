@@ -16,12 +16,14 @@
 #'
 #' @references
 #' \url{https://www.meetup.com/meetup_api/docs/:urlname/boards/}
-#'@examples
+#' @examples
 #' \dontrun{
 #' urlname <- "rladies-nashville"
-#' meetup_boards <- get_boards(urlname = urlname,
-#'                       api_key = api_key)
-#'}
+#' meetup_boards <- get_boards(
+#'   urlname = urlname,
+#'   api_key = api_key
+#' )
+#' }
 #' @export
 get_boards <- function(urlname, api_key = NULL) {
   api_method <- paste0(urlname, "/boards")

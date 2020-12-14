@@ -10,10 +10,11 @@ spf <- function(...) stop(sprintf(...), call. = FALSE)
                          ...) {
 
   # list of parameters
-  parameters <- list(status = event_status, # you need to add the status
-                     # otherwise it will get only the upcoming event
-                     offset = offset,
-                     ...                    # other parameters
+  parameters <- list(
+    status = event_status, # you need to add the status
+    # otherwise it will get only the upcoming event
+    offset = offset,
+    ... # other parameters
   )
 
   # Only need API keys if OAuth is disabled...
@@ -21,18 +22,22 @@ spf <- function(...) stop(sprintf(...), call. = FALSE)
     parameters <- append(parameters, list(key = get_api_key()))
   }
 
-  req <- httr::GET(url = api_url,          # the endpoint
-                   query = parameters,
-                   config = meetup_token()
+  req <- httr::GET(
+    url = api_url, # the endpoint
+    query = parameters,
+    config = meetup_token()
   )
 
   if (req$status_code == 400) {
-    stop(paste0("HTTP 400 Bad Request error encountered for: ",
-                api_url,".\n As of June 30, 2020, this may be ",
-                "because a presumed bug with the Meetup API ",
-                "causes this error for a future event. Please ",
-                "confirm the event has ended."),
-         call. = FALSE)
+    stop(paste0(
+      "HTTP 400 Bad Request error encountered for: ",
+      api_url, ".\n As of June 30, 2020, this may be ",
+      "because a presumed bug with the Meetup API ",
+      "causes this error for a future event. Please ",
+      "confirm the event has ended."
+    ),
+    call. = FALSE
+    )
   }
 
   httr::stop_for_status(req)
@@ -40,7 +45,8 @@ spf <- function(...) stop(sprintf(...), call. = FALSE)
 
   if (length(reslist) == 0) {
     stop("Zero records match your filter. Nothing to return.\n",
-         call. = FALSE)
+      call. = FALSE
+    )
   }
 
   return(list(result = reslist, headers = req$headers))
@@ -56,14 +62,16 @@ spf <- function(...) stop(sprintf(...), call. = FALSE)
   api_url <- paste0(meetup_api_prefix, api_method)
 
   # Fetch first set of results (limited to 200 records each call)
-  
-  res <- .quick_fetch(api_url = api_url,
-                      api_key = api_key,
-                      event_status = event_status,
-                      offset = 0,
-                      ...)
 
-  res <-  .quick_fetch(api_url, event_status = event_status, ...)
+  res <- .quick_fetch(
+    api_url = api_url,
+    api_key = api_key,
+    event_status = event_status,
+    offset = 0,
+    ...
+  )
+
+  res <- .quick_fetch(api_url, event_status = event_status, ...)
 
 
   # Total number of records matching the query
@@ -72,26 +80,27 @@ spf <- function(...) stop(sprintf(...), call. = FALSE)
   records <- res$result
   cat(paste("Downloading", total_records, "record(s)..."))
 
-  if((length(records) < total_records) & !is.null(res$headers$link)){
+  if ((length(records) < total_records) & !is.null(res$headers$link)) {
 
     # calculate number of offsets for records above 200
-    offsetn <- ceiling(total_records/length(records))
+    offsetn <- ceiling(total_records / length(records))
     all_records <- list(records)
 
-    for(i in 1:(offsetn - 1)) {
-      res <- .quick_fetch(api_url = api_url,
-                          api_key = api_key,
-                          event_status = event_status,
-                          offset = i,
-                          ...)
-      
+    for (i in 1:(offsetn - 1)) {
+      res <- .quick_fetch(
+        api_url = api_url,
+        api_key = api_key,
+        event_status = event_status,
+        offset = i,
+        ...
+      )
+
       next_url <- strsplit(strsplit(res$headers$link, split = "<")[[1]][2], split = ">")[[1]][1]
       res <- .quick_fetch(next_url, event_status)
 
       all_records[[i + 1]] <- res$result
     }
     records <- unlist(all_records, recursive = FALSE)
-
   }
 
   return(records)
@@ -102,8 +111,10 @@ spf <- function(...) stop(sprintf(...), call. = FALSE)
 .date_helper <- function(time) {
   if (is.character(time)) {
     # if date is character string, try to convert to numeric
-    time <- tryCatch(expr = as.numeric(time),
-                     error = warning("One or more dates could not be converted properly"))
+    time <- tryCatch(
+      expr = as.numeric(time),
+      error = warning("One or more dates could not be converted properly")
+    )
   }
   if (is.numeric(time)) {
     # divide milliseconds by 1000 to get seconds; convert to POSIXct
