@@ -24,5 +24,15 @@ get_locations <- function(query = NULL, lat = NULL, lon = NULL, api_key = NULL) 
 
   res <- .fetch_results(api_method, api_key, query = query, lat = lat, lon = lon)
 
-
+  tibble::tibble(
+    name = purrr::map_chr(res, "name_string"),
+    lat = purrr::map_chr(res, "lat"),
+    lon = purrr::map_chr(res, "lon"),
+    city = purrr::map_chr(res, "city"),
+    country = purrr::map_chr(res, "country"),
+    country_standardized = purrr::map_chr(res, "localized_country_name"),
+    state = purrr::map_chr(res, "state"),
+    zip = purrr::map_chr(res, "state"),
+    resource = res
+  )
 }

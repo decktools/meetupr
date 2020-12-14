@@ -24,6 +24,11 @@
 #' \dontrun{
 #'
 #' }
+#'
+ll <- get_locations("New York City")
+find_events(ll$lat, ll$lon, radius = 1, query = "ultimate frisbee")
+
+
 find_events <- function(lat = NULL, lon = NULL, radius = NULL, start_date_range = NULL, end_date_range = NULL, query = NULL, topic_category = NULL, fields = NULL, excluded_groups = NULL, order = NULL, api_key = NULL) {
   api_method <- "find/upcoming_events"
 
@@ -33,16 +38,51 @@ find_events <- function(lat = NULL, lon = NULL, radius = NULL, start_date_range 
 
   res <- .fetch_results(api_method, api_key, query = query, lat = lat, lon = lon, radius = radius, start_date_range = start_date_range, end_date_range = end_date_range, fields = fields, excluded_groups = excluded_groups, order = order)
 
-  tibble::tibble(
-    name = purrr::map_chr(res, "name_string"),
-    lat = purrr::map_chr(res, "lat"),
-    lon = purrr::map_chr(res, "lon"),
-    city = purrr::map_chr(res, "city"),
-    country = purrr::map_chr(res, "country"),
-    country_standardized = purrr::map_chr(res, "localized_country_name"),
-    state = purrr::map_chr(res, "state"),
-    zip = purrr::map_chr(res, "state"),
-    resource = res
-  )
+  browser()
+
+  purrr::map(res$events, wrangle_event)
+}
+
+
+wrangle_event <- function(x) {
+  event <-
+    tibble::tibble(
+      id = x$id,
+      link = x$link,
+      event_name = x$name,
+      description = x$description,
+      status = x$status,
+      rsvp_limit = x$rsvp_limit,
+      local_date = x$local_date,
+      local_time = x$local_time,
+      duration = x$duration,
+      waitlist_count = x$waitlist_count,
+      yes_rsvp_count = x$yes_rsvp_count,
+      how_to_find_us = x$how_to_find_us,
+      visibility = x$visibility,
+      member_pay_fee = x$member_pay_fee,
+      created_at = x$created
+    )
+
+  venue_idx <- which(names(x) == "venue")
+  group_idx <- which(names(x) == "group")
+
+  venue <-
+    x$venue %>%
+    tibble::as_tibble() %>%
+    dplyr::rename_all(
+      ~ paste0("venue_", .)
+    )
+
+  group <-
+    x$venue %>%
+    tibble::as_tibble() %>%
+    dplyr::rename_all(
+      ~ paste0("group_", .)
+    )
+
+  event %>%
+    dplyr::bind_cols(venue) %>%
+    dplyr::bind_cols(group)
 }
 

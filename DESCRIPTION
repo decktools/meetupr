@@ -47,6 +47,7 @@ License: MIT + file LICENSE
 Depends:
     R (>= 3.3)
 Imports:
+    dplyr,
     httr,
     purrr,
     tibble,
