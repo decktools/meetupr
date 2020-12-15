@@ -1,5 +1,8 @@
 test_that("find_events() works", {
-  events <- find_events()
+  withr::local_options(list(meetupr.use_oauth = FALSE))
+  set_api_key("a good key")
+
+  events <- find_events(api_key = "a good key")
 
   expect_s3_class(events, "tbl_df")
 
