@@ -53,8 +53,10 @@ Depends:
 Imports:
     dplyr,
     httr,
+    magrittr,
     purrr,
     tibble,
+    tidyr,
     withr
 Suggests:
     knitr,

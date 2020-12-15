@@ -127,3 +127,41 @@ spf <- function(...) stop(sprintf(...), call. = FALSE)
   }
   return(out)
 }
+
+.wrangle_event <- function(x) {
+  venue_idx <- which(names(x) == "venue")
+  group_idx <- which(names(x) == "group")
+
+  event <-
+    x[-c(venue_idx, group_idx)] %>%
+    tibble::as_tibble() %>%
+    dplyr::rename_all(
+      ~ paste0("event_", .)
+    )
+
+  venue <-
+    x$venue %>%
+    tibble::as_tibble() %>%
+    dplyr::rename_all(
+      ~ paste0("venue_", .)
+    )
+
+  group <-
+    x$venue %>%
+    tibble::as_tibble() %>%
+    dplyr::rename_all(
+      ~ paste0("group_", .)
+    )
+
+  event %>%
+    dplyr::bind_cols(venue) %>%
+    dplyr::bind_cols(group)
+}
+
+.wrangle_topic <- function(x) {
+  photo_idx <- which(names(x) == "photo")
+
+  x[-photo_idx] %>%
+    tibble::as_tibble() %>%
+    tidyr::unnest(category_ids)
+}

@@ -1,23 +1,20 @@
-
-#' Get locations for meetup groups
+#' Find events by meetup groups
 #'
-#' Provide either a search query or a latitude + longitude combination to find a location
+#' Provide a search query, a latitude + longitude combination, and/or \code{topic_category} values to find events
 #'
-#' @param query
-#' @param topic_category
-#' @param lat Latitude (optional)
-#' @param lon Longitude (optional)
-#' @param radius
-#' @param start_date_range
-#' @param start_time_range
-#' @param end_date_range
-#' @param end_time_range
-#' @param fields
-#' @param order
-#' @param excluded_groups
+#' @param query Character. Raw full text search query.
+#' @param topic_category Character vector
+#' @param lat Approximate target latitude
+#' @param lon Approximate target longitude
+#' @param radius Radius (in miles) to search from the center of \code{lat, lon}
+#' @param start_date_range Character. Start date range for events to return (format: YYYY-MM-DDTHH:MM:SS)
+#' @param end_date_range Character. End date range for events to return (format: YYYY-MM-DDTHH:MM:SS)
+#' @param fields Extra optional fields to populate in the response
+#' @param order One of "best" or "time". The sort order of returned events. "best" orders events by recommendation score, while "time" orders events by the by the event's start time in increasing order. Defaults to "best."
+#' @param excluded_groups IDs for groups to exclude from the returned events
 #' @template api_key
 #'
-#' @return
+#' @return A tibble with columns prefixed with \code{event_}, \code{venue_}, and \code{group}
 #' @export
 #'
 #' @examples
@@ -26,7 +23,9 @@
 #' find_events(ll$lat, ll$lon, radius = 10, query = "ultimate frisbee")
 #'
 #' topics <- get_topics()
-#' mvmt_ids <- topics %>% dplyr::filter(name == "Movements") %>% dplyr::pull(category_ids)
+#' mvmt_ids <- topics %>%
+#'   dplyr::filter(name == "Movements") %>%
+#'   dplyr::pull(category_ids)
 #' find_events(ll$lat, ll$lon, radius = 10, topic_category = mvmt_ids)
 #' }
 find_events <- function(query = NULL, topic_category = NULL, lat = NULL, lon = NULL, radius = NULL, start_date_range = NULL, end_date_range = NULL, fields = NULL, excluded_groups = NULL, order = NULL, api_key = NULL) {
@@ -47,37 +46,6 @@ find_events <- function(query = NULL, topic_category = NULL, lat = NULL, lon = N
 
   res <- .fetch_results(api_method, api_key, text = query, topic_category = topic_category, lat = lat, lon = lon, radius = radius, start_date_range = start_date_range, end_date_range = end_date_range, fields = fields, excluded_groups = excluded_groups, order = order)
 
-  purrr::map(res$events, wrangle_event) %>%
-    bind_rows()
-}
-
-
-wrangle_event <- function(x) {
-  venue_idx <- which(names(x) == "venue")
-  group_idx <- which(names(x) == "group")
-
-  event <-
-    x[-c(venue_idx, group_idx)] %>%
-    tibble::as_tibble() %>%
-    dplyr::rename_all(
-      ~ paste0("event_", .)
-    )
-
-  venue <-
-    x$venue %>%
-    tibble::as_tibble() %>%
-    dplyr::rename_all(
-      ~ paste0("venue_", .)
-    )
-
-  group <-
-    x$venue %>%
-    tibble::as_tibble() %>%
-    dplyr::rename_all(
-      ~ paste0("group_", .)
-    )
-
-  event %>%
-    dplyr::bind_cols(venue) %>%
-    dplyr::bind_cols(group)
+  purrr::map(res$events, .wrangle_event) %>%
+    dplyr::bind_rows()
 }

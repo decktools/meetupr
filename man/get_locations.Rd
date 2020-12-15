@@ -19,7 +19,17 @@ obtained from \url{https://secure.meetup.com/meetup_api/key/}. To set the enviro
 run \code{Sys.setenv(MEETUP_KEY = "PASTE YOUR MEETUP KEY HERE")}.}
 }
 \value{
-
+A tibble with the following columns:
+\itemize{
+\item lat
+\item lon
+\item city
+\item country
+\item country_standardized
+\item state
+\item zip
+\item resource
+}
 }
 \description{
 Provide either a search query or a latitude + longitude combination to find a location

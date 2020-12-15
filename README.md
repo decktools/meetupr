@@ -6,9 +6,6 @@
 [![Build
 Status](https://travis-ci.org/rladies/meetupr.svg?branch=master)](https://travis-ci.org/rladies/meetupr)
 
-<<<<<<< HEAD
-R interface to the [Meetup API](https://www.meetup.com/meetup_api/) (v3)
-=======
 R interface to the Meetup API (v3)
 
 **Authors:** [Lucy D’Agostino
@@ -18,8 +15,6 @@ Mierzwa-Sulima](https://github.com/olgamie), [Claudia
 Vitolo](https://github.com/cvitolo)<br/>
 [MIT](https://opensource.org/licenses/MIT) **License:**
 [MIT](https://opensource.org/licenses/MIT)
->>>>>>> find_topics
-
 
 ## Installation
 

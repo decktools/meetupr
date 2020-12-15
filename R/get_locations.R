@@ -8,6 +8,15 @@
 #' @template api_key
 #'
 #' @return
+#' A tibble with the following columns:
+#'    * lat
+#'    * lon
+#'    * city
+#'    * country
+#'    * country_standardized
+#'    * state
+#'    * zip
+#'    * resource
 #' @export
 #'
 #' @examples
