@@ -55,6 +55,9 @@ We currently have the following functions:
 * `get_event_attendees()`  
 * `get_event_comments()`
 * `get_event_rsvps()`
+* `get_locations()`
+* `get_topic_categories()`
+* `find_events()`
 * `find_groups()`
 * `find_topics()`
 

@@ -4,6 +4,7 @@
 * Added `topic_id` argument to the `find_groups()` function so you can find all the groups related to precise topics (e.g. "R-Ladies") instead of a fuzzy text based search.
 * Added `find_topics()` function so you can find meetup.com topic IDs.  Contribution by Priyanka Gagneja: https://github.com/rladies/meetupr/pull/49
  for use in the `find_groups()` function.
+* Added `find_events()`, `get_locations()` and `get_topic_categories()`
  
 
 # meetupr 0.1.0

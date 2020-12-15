@@ -59,6 +59,7 @@ topics <- get_topics()
 mvmt_ids <- topics \%>\%
   dplyr::filter(name == "Movements") \%>\%
   dplyr::pull(category_ids)
+
 find_events(ll$lat, ll$lon, radius = 10, topic_category = mvmt_ids)
 }
 }

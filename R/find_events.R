@@ -26,6 +26,7 @@
 #' mvmt_ids <- topics %>%
 #'   dplyr::filter(name == "Movements") %>%
 #'   dplyr::pull(category_ids)
+#'
 #' find_events(ll$lat, ll$lon, radius = 10, topic_category = mvmt_ids)
 #' }
 find_events <- function(query = NULL, topic_category = NULL, lat = NULL, lon = NULL, radius = NULL, start_date_range = NULL, end_date_range = NULL, fields = NULL, excluded_groups = NULL, order = NULL, api_key = NULL) {
@@ -47,5 +48,8 @@ find_events <- function(query = NULL, topic_category = NULL, lat = NULL, lon = N
   res <- .fetch_results(api_method, api_key, text = query, topic_category = topic_category, lat = lat, lon = lon, radius = radius, start_date_range = start_date_range, end_date_range = end_date_range, fields = fields, excluded_groups = excluded_groups, order = order)
 
   purrr::map(res$events, .wrangle_event) %>%
-    dplyr::bind_rows()
+    dplyr::bind_rows() %>%
+    dplyr::mutate(
+      resource = list(res)
+    )
 }
