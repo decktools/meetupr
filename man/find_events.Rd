@@ -6,6 +6,7 @@
 \usage{
 find_events(
   query = NULL,
+  n_offsets = 10,
   topic_category = NULL,
   lat = NULL,
   lon = NULL,
@@ -20,6 +21,8 @@ find_events(
 }
 \arguments{
 \item{query}{Character. Raw full text search query.}
+
+\item{n_offsets}{Numeric. Number of offsets to ask for from the API.}
 
 \item{topic_category}{Character vector}
 
@@ -53,13 +56,13 @@ Provide a search query, a latitude + longitude combination, and/or \code{topic_c
 \examples{
 \dontrun{
 ll <- get_locations("New York City")
-find_events(ll$lat, ll$lon, radius = 10, query = "ultimate frisbee")
+find_events(lat = ll$lat, lon = ll$lon, radius = 10, query = "ultimate frisbee")
 
 topics <- get_topics()
 mvmt_ids <- topics \%>\%
   dplyr::filter(name == "Movements") \%>\%
   dplyr::pull(category_ids)
 
-find_events(ll$lat, ll$lon, radius = 10, topic_category = mvmt_ids)
+find_events(lat = ll$lat, lon = ll$lon, radius = 10, topic_category = mvmt_ids)
 }
 }

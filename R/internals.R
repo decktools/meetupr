@@ -52,6 +52,53 @@ spf <- function(...) stop(sprintf(...), call. = FALSE)
   return(list(result = reslist, headers = req$headers))
 }
 
+.fetch_events <- function(api_method, api_key = NULL, event_status = NULL, n_offsets = 10, ...) {
+  # Build the API endpoint URL
+  meetup_api_prefix <- "https://api.meetup.com/"
+  api_url <- paste0(meetup_api_prefix, api_method)
+
+  o <- 0
+
+  # Fetch first set of results (limited to 200 records each call)
+  this <- .quick_fetch(
+    api_url = api_url,
+    api_key = api_key,
+    event_status = event_status,
+    offset = o,
+    ...
+  )
+
+  out <-
+    this$result$events %>%
+    purrr::map(.wrangle_event) %>%
+    dplyr::bind_rows() %>%
+    dplyr::mutate(offset = o)
+
+  if (is.null(this$headers$link)) {
+    return(out)
+  }
+
+  while (!is.null(this$headers$link) && o < n_offsets) {
+    o %<>% `+`(1)
+
+    this <-
+      httr::GET(
+        url = this$headers$link %>% gsub(";.*", "", .) %>% gsub("[<>]", "", .),
+        config = meetup_token()
+      ) %>%
+      httr::stop_for_status() %>%
+      httr::content() %>%
+      purrr::pluck("events") %>%
+      purrr::map(.wrangle_event) %>%
+      dplyr::bind_rows() %>%
+      dplyr::mutate(offset = o)
+
+    out %<>% dplyr::bind_rows(this)
+  }
+
+  out
+}
+
 # Fetch all the results of a query given an API Method
 # Will make multiple calls to the API if needed
 # API Methods listed here: https://www.meetup.com/meetup_api/docs/
@@ -70,9 +117,6 @@ spf <- function(...) stop(sprintf(...), call. = FALSE)
     offset = 0,
     ...
   )
-
-  res <- .quick_fetch(api_url, event_status = event_status, ...)
-
 
   # Total number of records matching the query
   total_records <- as.integer(res$headers$`x-total-count`)
@@ -134,14 +178,24 @@ spf <- function(...) stop(sprintf(...), call. = FALSE)
 }
 
 .wrangle_event <- function(x) {
+
+  # These contain their own sub-lists
+  fee_idx <- which(names(x) == "fee")
   venue_idx <- which(names(x) == "venue")
   group_idx <- which(names(x) == "group")
 
   event <-
-    x[-c(venue_idx, group_idx)] %>%
+    x[-c(fee_idx, venue_idx, group_idx)] %>%
     tibble::as_tibble() %>%
     dplyr::rename_all(
       ~ paste0("event_", .)
+    )
+
+  fee <-
+    x$fee %>%
+    tibble::as_tibble() %>%
+    dplyr::rename_all(
+      ~ paste0("fee_", .)
     )
 
   venue <-
