@@ -4,10 +4,13 @@ spf <- function(...) stop(sprintf(...), call. = FALSE)
 # This helper function makes a single call, given the full API endpoint URL
 # Used as the workhorse function inside .fetch_results() below
 .quick_fetch <- function(api_url,
+                         url_full = NULL,
                          api_key = NULL, # deprecated, unused, can't swallow this in `...`
                          event_status = NULL,
                          offset = 0,
                          ...) {
+
+  url <- api_url %||% url_full
 
   # list of parameters
   parameters <- list(
@@ -23,7 +26,7 @@ spf <- function(...) stop(sprintf(...), call. = FALSE)
   }
 
   req <- httr::GET(
-    url = api_url, # the endpoint
+    url = url, # the endpoint or full url
     query = parameters,
     config = meetup_token()
   )
@@ -60,7 +63,7 @@ spf <- function(...) stop(sprintf(...), call. = FALSE)
   o <- 0
 
   # Fetch first set of results (limited to 200 records each call)
-  this <- .quick_fetch(
+  raw <- .quick_fetch(
     api_url = api_url,
     api_key = api_key,
     event_status = event_status,
@@ -68,30 +71,41 @@ spf <- function(...) stop(sprintf(...), call. = FALSE)
     ...
   )
 
+  if (length(raw$result$events) == 0) {
+    return(tibble::tibble())
+  }
+
   out <-
-    this$result$events %>%
+    raw$result$events %>%
     purrr::map(.wrangle_event) %>%
     dplyr::bind_rows() %>%
     dplyr::mutate(offset = o)
 
-  if (is.null(this$headers$link)) {
-    return(out)
-  }
+  more_content <- TRUE
 
-  while (!is.null(this$headers$link) && o < n_offsets) {
+  while (more_content && o < n_offsets) {
     o %<>% `+`(1)
 
-    this <-
-      httr::GET(
-        url = this$headers$link %>% gsub(";.*", "", .) %>% gsub("[<>]", "", .),
-        config = meetup_token()
-      ) %>%
-      httr::stop_for_status() %>%
-      httr::content() %>%
-      purrr::pluck("events") %>%
-      purrr::map(.wrangle_event) %>%
-      dplyr::bind_rows() %>%
-      dplyr::mutate(offset = o)
+    raw <-
+      .quick_fetch(
+        api_url = NULL,
+        url_full = raw$headers$link %>% gsub(";.*", "", .) %>% gsub("[<>]", "", .),
+        api_key = api_key,
+        event_status = event_status,
+        offset = o,
+        ...
+      )
+
+    if (length(raw$result$events) > 0) {
+      this <-
+        raw$result$events %>%
+        purrr::map(.wrangle_event) %>%
+        dplyr::bind_rows() %>%
+        dplyr::mutate(offset = o)
+    } else {
+      this <- tibble::tibble()
+      more_content <- FALSE
+    }
 
     out %<>% dplyr::bind_rows(this)
   }
