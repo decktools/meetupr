@@ -40,16 +40,23 @@ Authors@R:
       person(given = "Ben",
              family = "Ubah",
              role = "ctb",
-             email = "ubah.ben22@gmail.com"))
+             email = "ubah.ben22@gmail.com"),
+      person(given = "Amanda",
+             family = "Dobbyn",
+             role = "ctb",
+             email = "amanda.e.dobbyn@gmail.com"))
 Description: Provides access to data from 'meetup.com' (see
     https://www.meetup.com/meetup_api/ for more information).
 License: MIT + file LICENSE
 Depends:
     R (>= 3.3)
 Imports:
+    dplyr,
     httr,
+    magrittr,
     purrr,
     tibble,
+    tidyr,
     withr
 Suggests:
     knitr,

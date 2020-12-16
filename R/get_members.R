@@ -22,14 +22,14 @@
 #' \dontrun{
 #' urlname <- "rladies-nashville"
 #' members <- get_members(urlname)
-#'}
+#' }
 #' @export
-get_members <- function(urlname, api_key = NULL){
+get_members <- function(urlname, api_key = NULL) {
   api_method <- paste0(urlname, "/members/")
   res <- .fetch_results(api_method, api_key)
   tibble::tibble(
     id = purrr::map_int(res, "id"),
-    name = purrr::map_chr(res, "name", .default = NA),  
+    name = purrr::map_chr(res, "name", .default = NA),
     bio = purrr::map_chr(res, "bio", .default = NA),
     status = purrr::map_chr(res, "status"),
     created = .date_helper(purrr::map_dbl(res, c("group_profile", "created"))),
