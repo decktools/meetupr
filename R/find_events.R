@@ -32,6 +32,9 @@
 find_events <- function(query = NULL, topic_category = NULL, lat = NULL, lon = NULL, radius = NULL, start_date_range = NULL, end_date_range = NULL, fields = NULL, excluded_groups = NULL, order = NULL, api_key = NULL) {
   api_method <- "find/upcoming_events"
 
+  start_date_range %<>% .fix_dt()
+  end_date_range %<>% .fix_dt()
+
   # If fields is a vector, change it to single string of comma separated values
   if (length(fields) > 1) {
     fields <- paste(fields, collapse = ",")

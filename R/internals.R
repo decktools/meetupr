@@ -128,6 +128,11 @@ spf <- function(...) stop(sprintf(...), call. = FALSE)
   return(out)
 }
 
+# Turn a datetime into format Meetup wants
+.fix_dt <- function(x) {
+  x %>% gsub(" ", "T", .)
+}
+
 .wrangle_event <- function(x) {
   venue_idx <- which(names(x) == "venue")
   group_idx <- which(names(x) == "group")
