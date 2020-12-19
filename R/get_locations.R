@@ -41,7 +41,7 @@ get_locations <- function(query = NULL, lat = NULL, lon = NULL, api_key = NULL) 
     country = purrr::map_chr(res, "country"),
     country_standardized = purrr::map_chr(res, "localized_country_name"),
     state = purrr::map_chr(res, "state"),
-    zip = purrr::map_chr(res, "state"),
+    zip = purrr::map_chr(res, "zip"),
     resource = res
   )
 }
